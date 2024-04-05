@@ -14,7 +14,7 @@ const Login = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
-  const { loading } = useSelector((state: RootState) => state.user);
+  const { loading, error } = useSelector((state: RootState) => state.user);
 
 
   const handleLogin = () => {
@@ -30,6 +30,7 @@ const Login = () => {
 
   return (
     <View style={styles.container}>
+      {error && <Text variant='titleLarge'>error</Text>}
       <Text variant='titleLarge'>Login</Text>
       <View style={{ paddingTop: 20, rowGap: 15 }}>
         <TextInput

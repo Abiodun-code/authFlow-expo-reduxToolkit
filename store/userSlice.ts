@@ -23,6 +23,18 @@ export const loginAsync = createAsyncThunk('auth/login', async (userData: { emai
   }
 })
 
+export const checkLoginStatus = createAsyncThunk(
+  'auth/checkLoginStatus',
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = await AsyncStorage.getItem('userToken');
+      return token ? { isAuthenticated: true, token } : { isAuthenticated: false };
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
 
 const userSlice = createSlice({
   name: 'user',
@@ -41,6 +53,7 @@ const userSlice = createSlice({
         ...state,
         token: null,
         isAuthenticated: false,
+        user: null
       };
     },
   },
@@ -53,7 +66,6 @@ const userSlice = createSlice({
       })
       .addCase(registerAsync.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
       .addCase(registerAsync.rejected, (state, action: PayloadAction<any>) => {
         state.loading = false;
@@ -68,12 +80,24 @@ const userSlice = createSlice({
       })
       .addCase(loginAsync.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
       .addCase(loginAsync.rejected, (state, action: PayloadAction<any>) => {
         state.loading = false;
         state.error = action.payload;
       })
+      // check login status
+      .addCase(checkLoginStatus.pending, state => {
+        state.loading = true;
+      })
+      .addCase(checkLoginStatus.fulfilled, (state, action) => {
+        state.loading = false;
+        state.isAuthenticated = action.payload.isAuthenticated;
+        state.token = action.payload || null;
+      })
+      .addCase(checkLoginStatus.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
   },
 })
 

@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import { Provider, useDispatch, useSelector } from 'react-redux';
-import { RootState, store } from './store/store';
+import { persistor, RootState, store } from './store/store';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Login from './src/screens/Login';
@@ -11,37 +11,27 @@ import { PaperProvider } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { PersistGate } from 'redux-persist/integration/react';
+import { checkLoginStatus } from './store/userSlice';
 
 const Stack = createNativeStackNavigator();
 
 const App = ()=> {
 
-  // const isAuth = useSelector((state: RootState) => state.user.isAuthenticated)
+  const isAuth = useSelector((state: RootState) => state.user.isAuthenticated)
 
-  const dispatch = useDispatch()
-
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    const checkAuthentication =  async() => {
-     const gettoken = await AsyncStorage.getItem('userToken');
-        if (gettoken) {
-          // axios.defaults.headers.common['Authorization'] = `Bearer ${gettoken}`;
-          setIsAuthenticated(!isAuthenticated);
-        }else{
-            await AsyncStorage.removeItem('userToken')
-          setIsAuthenticated(!isAuthenticated);
-        }
-      }
-  }, []);
+    dispatch(checkLoginStatus()); // Dispatch checkLoginStatus action when the component mounts
+  }, [dispatch]);
 
-
-  console.log(isAuthenticated)
+  console.log(isAuth)
    
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{headerShown: false}} initialRouteName='Login'>
-        {!isAuthenticated ? (
+        {isAuth ? (
           <Stack.Screen name='Home' component={Home}/>
         ):
           (<>
@@ -67,9 +57,11 @@ const styles = StyleSheet.create({
 export default(()=>{
   return(
     <Provider store={store}>
-      <PaperProvider>
-        <App />
-      </PaperProvider>
+      <PersistGate loading={null} persistor={persistor}>
+        <PaperProvider>
+          <App />
+        </PaperProvider>
+      </PersistGate>
     </Provider>
   )
 })

@@ -22,7 +22,7 @@ const Home = () => {
   return (
     <View style={styles.container}>
       <Text>Home</Text>
-      <TouchableRipple onPress={()=>handleLog()} rippleColor="rgba(0, 0, 0, .12)" style={{ padding: 15, borderRadius: 4, backgroundColor: 'gray' }}>
+      <TouchableRipple onPress={handleLog} rippleColor="rgba(0, 0, 0, .12)" style={{ padding: 15, borderRadius: 4, backgroundColor: 'gray' }}>
         <Text variant='bodyLarge' style={{ textAlign: 'center', color: 'white' }}>Logout</Text>
       </TouchableRipple>
     </View>
